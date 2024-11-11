@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import '/styles/loginStyle.css';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
+import toast from "react-hot-toast";
+import { useAuth } from "../../store/auth";
 
 function Login() {
     const navigate = useNavigate();
-    
+    const {storeTokenInLS, token} = useAuth()
     const [action, setAction] = useState("SignUp");
     const [isOtp, setOtp] = useState(false);
+    const backapi = "http://localhost:5000"
     const [formData, setFormData] = useState({
-        role: "admin",
-        name: "",
+        adminName: "",
         email: "",
-        phone: "",
-        shopID: "",
         password: "",
         otp: ""
     });
@@ -24,7 +24,7 @@ function Login() {
         if (!isSubmitted) {
            
             try {
-                const response = await fetch('/api/auth/sign-up/Admin', {
+                const response = await fetch(`${backapi}/api/auth/register`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -33,8 +33,12 @@ function Login() {
                 });
                 console.log(response)
                 const data = await response.json();
-                if (response.ok) {
-                    console.log("First SignUp ");
+
+                if(data.alreadymsg){
+                    toast.error(data.alreadymsg)
+                }
+                if (data.msg) {
+                    toast.success(data.msg)
                     setIsSubmitted(true);
                     setOtp(true);
                 } else {
@@ -45,25 +49,26 @@ function Login() {
             }
         } else if (isOtp) {
             // OTP Verification request
-            // try {
-            //     const response = await fetch('/api/auth/verify-otp', {
-            //         method: 'POST',
-            //         headers: {
-            //             'Content-Type': 'application/json'
-            //         },
-            //         body: JSON.stringify({ email: formData.email, otp: formData.otp })
-            //     });
+            try {
+                const response = await fetch(`${backapi}/api/auth/verifyotp/${formData.email}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: formData.email, otp: formData.otp })
+                });
 
                 const data = await response.json();
-                if (response.ok) {
-                    console.log("SignUp form submitted with OTP:", data);
-                    navigate("/Homepage");
-                } else {
-                    console.log("Invalid OTP:", data.message);
+                if (data.inmsg) {
+                    toast.error(data.inmsg);
+                    
+                } else if(data.sucmsg){
+                    toast.success(data.sucmsg);
+                    navigate("/login");
                 }
-            // } catch (error) {
-            //     console.error("OTP Verification Error:", error);
-            // }
+            } catch (error) {
+                console.error("OTP Verification Error:", error);
+            }
         }
     };
 
@@ -71,7 +76,7 @@ function Login() {
         event.preventDefault();
         
         try {
-            const response = await fetch('/api/auth/login/Admin', {
+            const response = await fetch(`${backapi}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -80,11 +85,12 @@ function Login() {
             });
 
             const data = await response.json();
-            if (response.ok) {
-                console.log("Login successful:", data);
-                navigate("/Homepage");
-            } else {
-                console.log("Login failed:", data.message);
+            if (data.message) {
+                toast.error(data.message)
+            } else if(data.sucmsg){
+                toast.success(data.sucmsg)
+                storeTokenInLS(data.accessToken)
+                navigate("/home")
             }
         } catch (error) {
             console.error("Login Error:", error);
@@ -103,6 +109,11 @@ function Login() {
             handleLoginSubmit(event);
         }
     };
+
+    if(token)
+    {
+        return <Navigate to='/home'/>
+    }
 
     return (
         <div className="main1">
@@ -143,7 +154,7 @@ function Login() {
                                 <input
                                     type="text"
                                     placeholder="Name"
-                                    name="name"
+                                    name="adminName"
                                     value={formData.name}
                                     onChange={handleInputChange}
                                 />
@@ -156,19 +167,9 @@ function Login() {
                                 name="email"
                                 value={formData.email}
                                 onChange={handleInputChange}
+                                autoComplete="off"
                             />
                         </div>
-                        {action === "Login" ? null : (
-                            <div className="input">
-                                <input
-                                    type="text"
-                                    placeholder="Phone"
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleInputChange}
-                                />
-                            </div>
-                        )}
                         <div className="input">
                             <input
                                 type="password"
@@ -176,6 +177,7 @@ function Login() {
                                 name="password"
                                 value={formData.password}
                                 onChange={handleInputChange}
+                                autoComplete="off"
                             />
                         </div>
                     </div>
@@ -188,6 +190,7 @@ function Login() {
                                 placeholder="Enter 4-digit OTP"
                                 value={formData.otp}
                                 onChange={handleInputChange}
+                                autoComplete="off"
                             />
                         </div>
                     ) : (

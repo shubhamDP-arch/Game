@@ -87,6 +87,9 @@ form {
     font-size: 15px;
 
 }
+ ::placeholder{
+  padding-left: 25px;
+ }
 
 .Submitcontainer{
     display: flex;
