@@ -40,7 +40,7 @@ const registerAdmin  = async(req, res) =>{
         if (error) {
           console.log(error);
         } else {
-            const createOtp = await Otps.create({username: adminName, email: email, password, otp})
+            const createOtp = await Otps.create({shopid: shopID,username: adminName, email: email, password, otp})
             return res.status(200).json({msg: "Email Sent"})
         }
       });
@@ -49,16 +49,16 @@ const registerAdmin  = async(req, res) =>{
 const verifyOtp = async(req, res) => {
     const userOtp = req.body.otp
     const email = req.params.email
-    const shopid = req.params.shopid
     const users =  await Otps.find({email: email})
     const singleUser = users[users.length - 1]
-    const password = singleUser.password
-    if(userOtp === singleUser.otp){
+    
+    if(singleUser && userOtp === singleUser.otp){
         try {
-            const userCreated = await Admin.create({adminName: singleUser.username, email, password, shopID: shopid})
+            const password = singleUser.password
+            const userCreated = await Admin.create({adminName: singleUser.username, email, password, shopID: singleUser.shopid})
             await Otps.deleteMany({email: email})
             return res.status(201).json({
-                sucmsg: "OTP Verifired: Registered Successfully",
+                sucmsg: "Registered Successfully: Login",
                 userId: userCreated._id.toString()
             })
     
@@ -89,7 +89,7 @@ const loginAuth = async(req, res) =>{
   console.log(accessToken)
 
   return res.status(200).json(
-    {admin, accessToken }
+    {admin, accessToken, sucmsg: "Loggined Successfully" }
   )
 }
 

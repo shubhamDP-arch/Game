@@ -13,7 +13,7 @@ router.route("/login").post(loginAuth)
 router.route("/getproducts").post( authControllers.getProducts);
 router.route("/productdetail").post(authControllers.productDetails)
 router.route("/updateproduct").post(authControllers.updateProduct)
-router.route("/verifyotp/:email/:shopid").post(verifyOtp)
+router.route("/verifyotp/:email").post(verifyOtp)
 router.route("/soldproducts").post(authControllers.soldProducts)
 
 module.exports = router
