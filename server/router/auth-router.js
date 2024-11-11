@@ -6,7 +6,9 @@ const { registerAdmin, loginAuth, verifyOtp } = require("../controllers/adminAut
 router.route("/").get(authControllers.home)
 router.route("/insertproduct").post(authControllers.insertProduct);
 router.route("/scanproduct").post(authControllers.scanProduct)
+
 router.route("/register").post(registerAdmin)
+
 router.route("/login").post(loginAuth)
 router.route("/getproducts").post( authControllers.getProducts);
 router.route("/productdetail").post(authControllers.productDetails)
