@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import Quagga from 'quagga'; // Ensure you have quagga installed
-import {useNavigate} from "react-router-dom"
+import {Navigate} from "react-router-dom"
+import { useAuth } from '../../store/auth';
 const BarcodeScanner = () => {
 
     const [data, setData] = useState("")
-    const naviagte = useNavigate()
     const [items, setItems] = useState("")
     const [amountInput, setAmountInput] = useState(false)
-    const [itemDetails, setItemDetails] = useState([])
+    const [itemDetails, setItemDetails] = useState({})
     const [amount, setAmount] = useState(0)
+    const {token, shopid} = useAuth()
+    const backapi = "http://localhost:5000"
 
-    const startScanner = () => {
+    const startScanner =async () => {
+        const Quagga = await import('quagga');
+        const targetElement = document.querySelector('#interactive');
         Quagga.init({
             inputStream: {
                 name: "Live",
                 type: "LiveStream",
-                target: document.querySelector('#interactive'), // Target element
+                target: targetElement, // Target element
                 constraints: {
                     facingMode: "environment" // Use the back camera
                 }
@@ -102,17 +105,38 @@ const BarcodeScanner = () => {
 
     useEffect(() => {
         console.log(itemDetails)
+        const addToCart = async() => {
+            const response = await fetch(`${backapi}/api/auth/addtocart`, {
+            
+                method: "POST",
+                headers: {
+                    "Content-Type": `application/json`,
+                    Authorization: `Bearer ${token}`,
+                    ShopID: shopid
+                },
+                body: JSON.stringify(itemDetails)
+            })
+        }
+
+        addToCart()
     }, [itemDetails])
 
-    const handleAdd = (e) => {
+    const handleAdd = async(e) => {
         e.preventDefault()
-        setItemDetails([...itemDetails, {productname: items, quantity: Number(amount)}])
+        console.log("add")
+        setItemDetails( {productname: items, quantity: Number(amount)})
+        setAmountInput(false)
     }
 
     const handleAmount = (e) => {
         const {value} = e.target;
         setAmount(value)
     }
+
+    if(!token)
+        {
+          return <Navigate to="/"/>
+        }
 
     return (
        <>

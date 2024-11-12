@@ -71,27 +71,29 @@ const verifyOtp = async(req, res) => {
 }
  
 const loginAuth = async(req, res) =>{
-  const {email, password} = req.body
-  console.log(email, password)
-  const admin = await Admin.findOne({email: email})
+    const {email, password} = req.body
+    console.log(email, password)
+    const admin = await Admin.findOne({email: email})
 
-  if (!admin) {
-    return res.status(404).json({ message: "Admin not found" })
-  }
+    if (!admin) {
+        return res.status(404).json({ message: "Admin not found" })
+    }
 
-  const isPasswordValid = await admin.isPasswordCorrect(password)
+    const isPasswordValid = await admin.isPasswordCorrect(password)
 
-  if(!isPasswordValid){
-    return res.status(401).json({ message: "Incorrect password" });
+    if(!isPasswordValid){
+        return res.status(401).json({ message: "Incorrect password" });
 
+    }
+    const accessToken = await admin.generateAccessToken(admin._id)
+    console.log(accessToken)
+
+    return res.status(200).json(
+        {admin, accessToken, sucmsg: "Loggined Successfully" }
+    )
 }
-  const accessToken = await admin.generateAccessToken(admin._id)
-  console.log(accessToken)
 
-  return res.status(200).json(
-    {admin, accessToken, sucmsg: "Loggined Successfully" }
-  )
-}
+
 
 
 module.exports = {registerAdmin, loginAuth, verifyOtp}

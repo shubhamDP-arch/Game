@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './Components/Homepage';
 import Dashboard from './Components/Dashboard';
 import BarcodeScanner from './pages/react';
+import ContactUs from './Components/contact';
 function App(){
     
     return(
@@ -16,6 +17,7 @@ function App(){
            <Route path="/scan" element={<BarcodeScanner />} />
            <Route path="/home" element={<HomePage />} /> 
            <Route path='/logout' element={<Logout/>}/>
+           <Route path='/contactus' element={<ContactUs/>}/>
         </Routes>
       </Router>
         
