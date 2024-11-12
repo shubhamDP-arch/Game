@@ -2,11 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const axios =  require("axios");
 const Products = require('../models/product.model');
-
 const supplierModel = require('../models/supplier.model');
-
 const mongoose = require("mongoose")
-
+const Cart = require("../models/cart-model")
 
 const home = async(req, res) => {
     console.log("Hii Welcome to controllers")
@@ -151,4 +149,13 @@ const soldProducts = async(req, res) => {
     
 }
 
-module.exports = {home, insertProduct, scanProduct, getProducts, productDetails, updateProduct, soldProducts}
+const addToCart = async(req, res) => {
+    const {productname, quantity} = req.body;
+    const shopid = req.shopid
+    console.log(productname, quantity, shopid)
+
+    const addItemToCart = await Cart.create({productname, quantity, shopid})
+    console.log(addItemToCart)
+}
+
+module.exports = {home, insertProduct, scanProduct, getProducts, productDetails, updateProduct, soldProducts, addToCart}

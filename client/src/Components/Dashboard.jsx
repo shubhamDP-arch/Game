@@ -5,7 +5,7 @@ import '/styles/Dashboard.css'
 function Dashboard(){
     const Navigate= useNavigate();
     function handle(){
-       Navigate("/Login")
+       Navigate("/login")
     }
     return(
         <div>

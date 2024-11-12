@@ -6,7 +6,7 @@ import { useAuth } from "../../store/auth";
 
 function Login() {
     const navigate = useNavigate();
-    const {storeTokenInLS, token} = useAuth()
+    const {storeTokenInLS, token, storeShopIdInLS} = useAuth()
     const [action, setAction] = useState("SignUp");
     const [isOtp, setOtp] = useState(false);
     const backapi = "http://localhost:5000"
@@ -85,11 +85,13 @@ function Login() {
             });
 
             const data = await response.json();
+            console.log(data)
             if (data.message) {
                 toast.error(data.message)
             } else if(data.sucmsg){
                 toast.success(data.sucmsg)
                 storeTokenInLS(data.accessToken)
+                storeShopIdInLS(data.admin.shopID)
                 navigate("/home")
             }
         } catch (error) {
