@@ -12,7 +12,6 @@ const BarcodeScanner = () => {
     const backapi = "http://localhost:5000"
 
     const startScanner =async () => {
-        const Quagga = await import('quagga');
         const targetElement = document.querySelector('#interactive');
         Quagga.init({
             inputStream: {
@@ -133,10 +132,10 @@ const BarcodeScanner = () => {
         setAmount(value)
     }
 
-    if(!token)
-        {
-          return <Navigate to="/"/>
-        }
+    // if(!token)
+    //     {
+    //       return <Navigate to="/"/>
+    //     }
 
     return (
        <>
