@@ -206,8 +206,10 @@ const updateStock = async (req, res) => {
         } else {
             // Update the product quantity
             product.quantity -= element.quantity;
+            product.total_sold += element.quantity
+            product.revenue_generated += (product.price)*element.quantity
             // Save updated product quantity in the database
-            await Products.updateOne({ _id: product._id }, { $set: { quantity: product.quantity } });
+            await Products.updateOne({ _id: product._id }, { $set: { quantity: product.quantity, total_sold: product.total_sold, revenue_generated: product.revenue_generated } });
 
             const itemid = element._id
             console.log(itemid)
@@ -222,7 +224,7 @@ const updateStock = async (req, res) => {
     if (errorItems.length < 1) {
         return res.json({ success: true, message: "Stock updated successfully" });
     } else {
-        return res.json({ errorItems: errorItems, message: "Insufficient Stock" });
+        return res.json({success: false, errorItems: errorItems, message: "Insufficient Stock" });
     }
 };
 

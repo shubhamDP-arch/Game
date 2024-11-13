@@ -24,6 +24,10 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  revenue_generated: {
+    type: Number,
+    default: 0,
+  },
   shopid: {
     type: String,
     required: true,
