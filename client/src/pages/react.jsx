@@ -200,20 +200,23 @@ const BarcodeScanner = () => {
             })
 
             const result = await response.json();
-            console.log(result.errorItems)
             await getCartItems()
 
-            result.errorItems.forEach(element => {
-                const available = element.quantity;
-                const productname = element.productname;
-
-                toast(
-                    `${productname} insufficient! Only ${available} are available`,
-                    {
-                      duration: 5000,
-                    }
-                  );
-            });
+            if(result.success){
+                toast.success(result.message)
+            }else{
+                result.errorItems.forEach(element => {
+                    const available = element.quantity;
+                    const productname = element.productname;
+    
+                    toast(
+                        `${productname} insufficient! Only ${available} are available`,
+                        {
+                          duration: 5000,
+                        }
+                      );
+                });
+            }
 
         } catch (error) {
             console.log(error)
