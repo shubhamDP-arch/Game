@@ -65,7 +65,7 @@ function HomePage(){
     	<SideBar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
     
     	<div className="Stage">
-			<Card />
+			<Card destination = "/scan"/>
 			<Card />
       	</div>
     </div>

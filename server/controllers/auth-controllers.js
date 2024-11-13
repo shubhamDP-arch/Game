@@ -156,6 +156,81 @@ const addToCart = async(req, res) => {
 
     const addItemToCart = await Cart.create({productname, quantity, shopid})
     console.log(addItemToCart)
+
+    const cartItems = await Cart.find({shopid: shopid});
+    return res.json({cartItems: cartItems})
 }
 
-module.exports = {home, insertProduct, scanProduct, getProducts, productDetails, updateProduct, soldProducts, addToCart}
+const deleteCart = async(req, res) => {
+    console.log("Hii")
+    const shopid =  req.shopid;
+    await Cart.deleteMany({shopid: shopid})
+}
+
+const deleteItem = async(req, res) => {
+    console.log("Deleteing")
+    const shopid = req.shopid;
+    const {itemId} = req.body;
+    console.log(itemId)
+    await Cart.deleteOne({_id: itemId, shopid: shopid})
+    const cartItems = await Cart.find({shopid: shopid});
+    return res.json({cartItems: cartItems})
+}
+
+const updateStock = async (req, res) => {
+    console.log(req.body, "req");
+    const { cartItems } = req.body;
+    const shopid = "SHOP001";
+    const errorItems = [];
+
+    console.log("cartItems", cartItems);
+
+    cartItems.sort((a, b) => a.quantity - b.quantity);
+    console.log(" sorted cartitems", cartItems)
+
+    // Using a for...of loop to handle async operations sequentially
+    for (const element of cartItems) {
+        const product = await Products.findOne({ shopid: shopid, productname: element.productname });
+        
+        if (!product) {
+            // Product not found, add to errorItems or handle accordingly
+            errorItems.push({ productname: element.productname, message: "Product not found" });
+            continue;
+        }
+
+        console.log(product, "product");
+
+        if (product.quantity < element.quantity) {
+            // Not enough stock, add to errorItems
+            errorItems.push(product);
+        } else {
+            // Update the product quantity
+            product.quantity -= element.quantity;
+            // Save updated product quantity in the database
+            await Products.updateOne({ _id: product._id }, { $set: { quantity: product.quantity } });
+
+            const itemid = element._id
+            console.log(itemid)
+            // Remove item from the cart
+            await Cart.deleteOne({ shopid: shopid, _id: itemid });
+        }
+    }
+
+    console.log("errorItems", errorItems);
+
+    // Send a response based on the presence of errorItems
+    if (errorItems.length < 1) {
+        return res.json({ success: true, message: "Stock updated successfully" });
+    } else {
+        return res.json({ errorItems: errorItems, message: "Insufficient Stock" });
+    }
+};
+
+
+
+const getCartItems = async(req, res) => {
+    const shopid = req.shopid;
+    const cartItems = await Cart.find({shopid: shopid});
+    return res.json({cartItems: cartItems})
+}
+module.exports = {getCartItems, updateStock, deleteItem, deleteCart, home, insertProduct, scanProduct, getProducts, productDetails, updateProduct, soldProducts, addToCart}
